@@ -12,7 +12,7 @@ func printNumbers(m, n int) {
 }
 
 func main() {
-	printNumbers(0, 5)
-	fmt.Println("end of print")
+	go printNumbers(0, 5)
+	go fmt.Println("end of print")
 	time.Sleep(time.Second)
 }

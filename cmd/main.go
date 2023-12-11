@@ -5,14 +5,25 @@ import (
 	"time"
 )
 
-func printNumbers(m, n int) {
-	for i := m; i < n; i++ {
-		fmt.Println(i)
+func main() {
+	go spinner(100 * time.Millisecond)
+	n := 44
+	fibN := fib(n)
+	fmt.Println("\rFibonacci(%d) = %d\n", n, fibN)
+}
+
+func spinner(delay time.Duration) {
+	for {
+		for _, r := range `-\|/` {
+			fmt.Printf("\r%c", r)
+			time.Sleep(delay)
+		}
 	}
 }
 
-func main() {
-	go printNumbers(0, 5)
-	go fmt.Println("end of print")
-	time.Sleep(time.Second)
+func fib(x int) int {
+	if x < 2 {
+		return x
+	}
+	return fib(x-1) + fib(x-2)
 }

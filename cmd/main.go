@@ -33,12 +33,9 @@ func spinner(delay time.Duration) {
 	}
 }
 
-func fib(n int) int {
-	var n3, n1, n2 = 0, 0, 1
-	for i := 1; i <= n; i++ {
-		n3 = n1 + n2
-		n1 = n2
-		n2 = n3
+func fib(x int) int {
+	if x < 2 {
+		return x
 	}
-	return n1
+	return fib(x-1) + fib(x-2)
 }

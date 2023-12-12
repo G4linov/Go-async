@@ -4,12 +4,12 @@ import "sync"
 
 type Cache struct {
 	storage map[string]int
-	mu      sync.Mutex
+	mu      sync.RWMutex
 }
 
-func NewCache(mapa map[string]int) *Cache {
+func NewCache() *Cache {
 	return &Cache{
-		storage: mapa,
+		storage: make(map[string]int),
 	}
 }
 
@@ -26,8 +26,8 @@ func (c *Cache) Set(key string, value int) {
 }
 
 func (c *Cache) Get(key string) int {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	return c.storage[key]
 }
 

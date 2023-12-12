@@ -3,38 +3,42 @@ package main
 import (
 	. "async/cache"
 	"fmt"
+	"sync"
 	"time"
 )
 
+const (
+	k1   = "key1"
+	step = 7
+)
+
 func main() {
-	c0 := make(chan int)
-	go spinner(100 * time.Millisecond)
-	go func() {
-		var n3, n1, n2 = 0, 0, 1
-		for i := 1; i <= 44; i++ {
-			n3 = n1 + n2
-			n1 = n2
-			n2 = n3
-		}
-		c0 <- n3
-	}()
-	done := <-c0
-	n := (45)
-	fibN := fib(n)
-	fmt.Printf("\rFibonacci(%d) = %d\n", 44, done)
-	fmt.Printf("\rFibonacci(%d) = %d\n", n, fibN)
+	var wg sync.WaitGroup
+	cache := NewCache()
 
-	sad := make(map[string]int)
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			cache.Increase(k1, step)
+			time.Sleep(time.Microsecond * 100)
+		}()
+	}
+	for i := 0; i < 10; i++ {
+		i := i
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			cache.Set(k1, step*i)
+			time.Sleep(time.Millisecond * 100)
+		}()
+	}
 
-	cac := NewCache(sad)
-
-	cac.Set("1st", 1)
-	go cac.Increase("1st", 3)
-	cac.Increase("1st", 2)
-
-	fmt.Println(cac.Get("1st"))
+	wg.Wait()
+	fmt.Println(cache.Get(k1))
 }
 
+/*
 func spinner(delay time.Duration) {
 	for {
 		for _, r := range `-\|/` {
@@ -50,3 +54,4 @@ func fib(x int) int {
 	}
 	return fib(x-1) + fib(x-2)
 }
+*/

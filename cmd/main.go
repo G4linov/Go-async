@@ -3,7 +3,6 @@ package main
 import (
 	. "async/cache"
 	"fmt"
-	"sync"
 	"time"
 )
 
@@ -13,28 +12,34 @@ const (
 )
 
 func main() {
-	var wg sync.WaitGroup
+	semaphore := make(chan int, 4)
 	cache := NewCache()
 
 	for i := 0; i < 10; i++ {
-		wg.Add(1)
+		semaphore <- i
 		go func() {
-			defer wg.Done()
+			defer func() {
+				msg := <-semaphore
+				fmt.Println(msg)
+			}()
 			cache.Increase(k1, step)
 			time.Sleep(time.Microsecond * 100)
 		}()
 	}
 	for i := 0; i < 10; i++ {
-		i := i
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		semaphore <- i
+		go func(i int) {
+			defer func() {
+				msg := <-semaphore
+				fmt.Println(msg)
+			}()
 			cache.Set(k1, step*i)
-			time.Sleep(time.Millisecond * 100)
-		}()
+			time.Sleep(time.Microsecond * 100)
+		}(i)
 	}
-
-	wg.Wait()
+	for len(semaphore) > 0 {
+		time.Sleep(time.Millisecond * 1000)
+	}
 	fmt.Println(cache.Get(k1))
 }
 

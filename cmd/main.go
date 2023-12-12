@@ -1,6 +1,7 @@
 package main
 
 import (
+	. "async/cache"
 	"fmt"
 	"time"
 )
@@ -22,6 +23,16 @@ func main() {
 	fibN := fib(n)
 	fmt.Printf("\rFibonacci(%d) = %d\n", 44, done)
 	fmt.Printf("\rFibonacci(%d) = %d\n", n, fibN)
+
+	sad := make(map[string]int)
+
+	cac := NewCache(sad)
+
+	cac.Set("1st", 1)
+	go cac.Increase("1st", 3)
+	cac.Increase("1st", 2)
+
+	fmt.Println(cac.Get("1st"))
 }
 
 func spinner(delay time.Duration) {

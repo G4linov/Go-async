@@ -23,7 +23,6 @@ func main() {
 				fmt.Println(msg)
 			}()
 			cache.Increase(k1, step)
-			time.Sleep(time.Microsecond * 100)
 		}()
 	}
 	for i := 0; i < 10; i++ {
@@ -34,7 +33,7 @@ func main() {
 				fmt.Println(msg)
 			}()
 			cache.Set(k1, step*i)
-			time.Sleep(time.Microsecond * 100)
+			time.Sleep(time.Microsecond * 10)
 		}(i)
 	}
 	for len(semaphore) > 0 {

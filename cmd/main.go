@@ -14,13 +14,14 @@ const (
 func main() {
 	semaphore := make(chan int, 4)
 	cache := NewCache()
+	done := make(chan struct{})
 
 	for i := 0; i < 10; i++ {
 		semaphore <- i
 		go func() {
 			defer func() {
 				msg := <-semaphore
-				fmt.Println(msg)
+				fmt.Print(msg)
 			}()
 			cache.Increase(k1, step)
 		}()
@@ -30,14 +31,28 @@ func main() {
 		go func(i int) {
 			defer func() {
 				msg := <-semaphore
-				fmt.Println(msg)
+				fmt.Print(msg)
 			}()
 			cache.Set(k1, step*i)
-			time.Sleep(time.Microsecond * 10)
 		}(i)
 	}
 	for len(semaphore) > 0 {
+		time.Sleep(time.Millisecond * 10)
+	}
+	go func() {
 		time.Sleep(time.Millisecond * 1000)
+		done <- struct{}{}
+	}()
+L:
+	for {
+		select {
+		case <-done:
+			fmt.Println("done")
+			break L
+		default:
+			fmt.Println("waiting")
+			time.Sleep(time.Millisecond * 100)
+		}
 	}
 	fmt.Println(cache.Get(k1))
 }
